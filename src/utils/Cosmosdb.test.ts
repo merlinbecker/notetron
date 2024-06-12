@@ -49,7 +49,7 @@ const createMockedCosmosClient = (result: any) => {
   }
 
 };
-const response = async (): Promise<string> => new Promise((prom) => "worked")
+const response = async (): Promise<string> => new Promise((resolve) => resolve("worked"))
 
 describe('cosmosDB Wrapper tests', () => {
   // Your test code here
@@ -77,7 +77,7 @@ describe('cosmosDB Wrapper tests', () => {
     });
 
     // Assert the result
-    expect(actualResult).toEqual(response())
+    expect(actualResult).toEqual(await response())
 
     // Verify that the methods were called as expected
     expect(mocks.mockFetchAll).toHaveBeenCalledTimes(1);
