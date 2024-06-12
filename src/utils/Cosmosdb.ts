@@ -18,7 +18,7 @@ export type CosmosConfig = {
 export class CosmosDB {
     private client: CosmosClient
     private database: Database
-    private container: Container
+    public container: Container
     private config: CosmosConfig
     private domain: string
 
@@ -54,7 +54,7 @@ export class CosmosDB {
         identifier: string,
         messagetext: string,
         userid: string
-        callback: (args?: {}) => string,
+        callback: (args?: {}) => Promise<string>,
         callbackArgs?: any
     }) {
 
@@ -69,7 +69,7 @@ export class CosmosDB {
             await this.container.item(config.identifier).replace(replaceWith)
             return null
         } else {
-            const result = config.callback(config.callbackArgs)
+            const result = await config.callback(config.callbackArgs)
             try {
                 await this.container.items.create({
                     id: config.identifier,
