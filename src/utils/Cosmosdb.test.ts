@@ -49,7 +49,7 @@ const createMockedCosmosClient = (result: any) => {
   }
 
 };
-const response = () => "worked"
+const response = async (): Promise<string> => new Promise((prom) => "worked")
 
 describe('cosmosDB Wrapper tests', () => {
   // Your test code here
