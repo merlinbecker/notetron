@@ -55,9 +55,6 @@ jobs:
         with:
           name: node-app
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
-      
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
