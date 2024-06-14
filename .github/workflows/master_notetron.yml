@@ -65,7 +65,7 @@ jobs:
       - name: 'Unzip artifact'
         shell: pwsh
         run: |
-          $destinationPath = "./unzipped"
+          $destinationPath = "."
           New-Item -ItemType Directory -Force -Path $destinationPath
           Expand-Archive -Path node-app.zip -DestinationPath $destinationPath
           
@@ -75,5 +75,5 @@ jobs:
         with:
           app-name: 'notetron'
           slot-name: 'Production'
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6465F50D7F084B4D9E27D786E2FCC887 }}
