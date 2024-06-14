@@ -59,7 +59,7 @@ jobs:
         uses: Azure/functions-action@v1
         id: fa
         with:
-          app-name: 'slacktron'
-          slot-name: 'develop'
+          app-name: 'thoughttron'
+          slot-name: 'notetron'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6465F50D7F084B4D9E27D786E2FCC887 }}
