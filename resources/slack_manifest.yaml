@@ -1,11 +1,11 @@
 display_information:
-  name: Slacktron
-  description: my first Slack Chatbot
+  name: Notetron
+  description: notetron, manage notes with LLM and RAG
   background_color: "#000000"
-  long_description: Hello, I am Slacktron, designed to mirror your words and actions, illustrating my capacity to respond effectively and engage with your input, providing a seamless interaction that reflects my capabilities in a dynamic and user-friendly manner.
+  long_description: Hello, I am Notetron, designed to take your notes and chat about it, illustrating my capacity to respond effectively and engage with your input, providing a seamless interaction that reflects my capabilities in a dynamic and user-friendly manner.
 features:
   bot_user:
-    display_name: Slacktron
+    display_name: Notetron
     always_online: true
   slash_commands:
     - command: /version
