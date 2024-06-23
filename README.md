@@ -1,63 +1,103 @@
-## Slacktron: A Template for Building Your Slackbot with Azure Functions and TypeScript
+# Notetron - A Simple Low-Budget RAG Slack Chatbot for Managing Quick Notes
 
-### Overview
+## Technologies Used
 
-Slacktron is a template designed to facilitate the development of Slackbots using TypeScript and Azure Functions. This template aims to provide a cost-effective solution for hosting Slackbots in the cloud, ensuring they remain accessible around the clock with minimal to no running costs. By leveraging Azure Functions within a Consumption Plan, developers can achieve scalability and efficiency, navigating through certain technical challenges that this setup presents.
+- Slack API
+- Azure Function (TypeScript)
+- Qdrant Cloud Vector Database
+- OpenAI API (text-embedding-ada-002, gpt-3.5-turbo)
+- LangFuse
+- LangChain.js
+- Cosmos DB
 
-### Architecture
+## Summary
 
-The architecture of Slacktron is built around the interaction between Slack, an Azure Function App, and Azure Cosmos DB, providing a streamlined process for handling messages and commands within Slack. The sequence of interaction is as follows:
+Notetron is a low-budget Slack chatbot that operates with Retrieval Augmented Generation (RAG). The chatbot stores unstructured notes and retrieves them upon request. The setup includes Slack API, Azure Functions, Qdrant Cloud, and OpenAI API.
 
-![slacktron blueprint](./resources/plantuml_slacktron.png)
+## Technical Setup
 
-1. **User Interaction**: The process begins when a user sends a message to Slack, targeting a specific chatbot.
-2. **Slack Forwarding**: Slack receives the message and forwards it to the Azure Function App through a webhook or API set up during the Slackbot configuration.
-3. **Duplicate Checking**: Upon receiving the message, the Azure Function App queries Azure Cosmos DB to check for duplicates, ensuring that each message is processed only once.
-4. **Database Feedback**: Azure Cosmos DB responds to the query, indicating whether the message is new or a duplicate.
-5. **Message Processing**: New messages are processed by the Azure Function App, which can generate responses or trigger actions based on the chatbot's logic.
-6. **Response Handling**: The Azure Function App sends the processed response back to Slack, which then delivers it to the user.
+### Components
 
-This setup demonstrates a robust framework for managing interactions with Slackbots, facilitated by the integration of Azure services.
+- **Slack API Component:** Set up as a Slack App via https://api.slack.com/apps.
+- **Backend Component:** Azure Function App in the Consumption tier with an HTTP trigger for Slack requests. Security is managed with OAuth tokens and Function Key.
+- **Vector Database:** Managed version of Qdrant in the cloud.
+- **Embedding Endpoint:** OpenAI API model text-embedding-ada-002 (https://platform.openai.com/docs/guides/embeddings).
+- **LLM Endpoint:** OpenAI API Completion Endpoint (https://platform.openai.com/docs/guides/text-generation/chat-completions-api).
+- **Prompt Repository and Evaluation:** Optional component using LangFuse for prompt management and tracing.
 
-### Technical Details
+### Slack API Component
 
-#### The Azure Function
+Set up the Slack API component as a Slack App via https://api.slack.com/apps. Follow the steps described in [Introducing Slacktron](https://merlinbecker.de/introducing-slacktron-building-a-low-budget-always-on-slackbot-template-with-azure-functions-and-edbc7359bd4d). Use the [Slacktron template repository](https://github.com/merlinbecker/slacktron) as a basis.
 
-The core of Slacktron lies within the Azure Function, specifically designed to handle HTTP triggers. 
-The Slack Bolt Framework is utilized for managing event handling, abstracting the complexity of Slack API interactions.
+### Backend Component
 
-##### Middleware Integration
+The orchestrator is an Azure Function App in the Consumption tier with an HTTP trigger for Slack requests. Use the Slacktron template for deployment. Secure the function with OAuth tokens and Function Key. Additionally, deploy a Cosmos DB to handle cold-start issues and log requests and responses.
 
-To route HTTP requests directly to the Bolt app, middleware adaptation is necessary. Slacktron includes an adapted version of middleware, modified to align with the header structure changes in Azure Functions version 4. This middleware ensures seamless integration between incoming HTTP requests and the Slack Bolt Framework.
+### Endpoints for Embedding and the LLM
 
-##### Handling Cold Starts
+Utilize two endpoints from the OpenAI API:
+- Embedding: [text-embedding-ada-002](https://platform.openai.com/docs/guides/embeddings)
+- Completion: [chat-completions-api](https://platform.openai.com/docs/guides/text-generation/chat-completions-api)
 
-A notable challenge with Azure Functions is the cold-start issue, particularly relevant in the Consumption Plan. Slacktron addresses this by employing a Cosmos DB container to log and track incoming requests, mitigating the impact of cold starts on response times. This approach ensures that messages are not processed multiple times, avoiding duplicate responses to users. The schema for tracking requests in Cosmos DB is designed to uniquely identify each message, facilitating efficient processing and logging.
+### Prompt Repository and Evaluation
 
-#### Deployment and Configuration
+Integrate LangFuse as a prompt repository and tracing tool. More information can be found at [LangFuse](https://langfuse.com/).
 
-Slacktron comes with an ARM template for easy deployment of the necessary Azure resources, including the setup of a development AppSlot for testing and versioning. The template and continuous deployment guidelines streamline the process of integrating changes and maintaining the Slackbot.
+### Qdrant Cloud Vector Database
 
-### Setup and Integration
+Qdrant offers a generous free tier for private use. Ensure a steady stream of notes to prevent the cluster from switching to inactive mode.
 
-#### Slack Configuration
 
-Setting up Slacktron involves creating a Slack Workspace and a new Slack App, configuring it with the Azure Function's URL and App Key. 
-You can use the slack_maifest.yaml to do that.
-It is crucial to securely manage Slack credentials, such as the Slack Signing Secret and OAuth Tokens, by storing them in the Azure Function's environment variables.
+### Usage of SaaS or PaaS Components
 
-### Conclusion
+Most components are used as SaaS or PaaS, minimizing the amount of custom code required. Key components:
+- [langchain.js](https://github.com/langchain-ai/langchainjs)
+- [Slacktron template](https://github.com/merlinbecker/slacktron)
 
-Slacktron offers a comprehensive template for developers looking to create and deploy Slackbots with Azure Functions and TypeScript. By addressing technical challenges such as cold starts and providing a scalable architecture, Slacktron enables the development of efficient, cost-effective Slackbots suitable for various applications.
+### Code for Qdrant Filtering
 
-**Helpful Links:**
+Special feature to filter Qdrant database queries by checking metadata for either the UserId or "shared":
 
-- [Slack Bolt Framework](https://www.npmjs.com/package/@slack/bolt)
-- [Middleware Solution](http://github.com/deepbass/bolt-azure-functions-receiver)
-- [Adapted Middleware](https://github.com/merlinbecker/slacktron/blob/master/src/utils/AzReciever.ts)
-- [CosmosDB Wrapper Class](https://github.com/merlinbecker/slacktron/blob/master/src/utils/Cosmosdb.ts)
-- [ARM Template for Azure Functions](https://github.com/merlinbecker/slacktron/blob/master/resources/arm-template/template.json)
-- [Continuous Deployment for Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/functions-continuous-deployment)
-- [Environment Variables Configuration](https://github.com/merlinbecker/slacktron/blob/master/local.settings.example.json)
+[Gist for Qdrant](https://gist.github.com/merlinbecker/601edc014424572ae4a05ead3df24381)
 
-This README serves as a guide for utilizing Slacktron in your projects, providing the tools and knowledge needed to create dynamic, interactive Slackbots.
+### Integrating LangFuse
+
+The integration of LangFuse into the existing Langchain code involves registering it as a callback handler for tracing and prompt management.
+
+[Integrating LangFuse](https://gist.github.com/merlinbecker/40a8310c05c679da39650cc1edc1cc81)
+
+## Managed Identity for Deployment
+
+Ensure the correct configuration of federated credentials for the managed identity used for deployment to avoid deployment errors. Detailed steps can be found in the managed identity settings.
+
+## Costs
+
+The following table summarizes the annual costs incurred:
+
+| Service             | Cost                  |
+| ------------------- | --------------------- |
+| azure cosmos db     | free-tier             |
+| azure function      | free-tier             |
+| azure log analytics | €0.05                 |
+| azure storage       | €3.50                 |
+| langflow            | free-tier - free      |
+| openai embedding    | €7.16                 |
+| openai gpt          | €1.79                 |
+| qdrant              | free-tier - free      |
+| slack               | free workspace        |
+
+## Links
+
+- [How it works (AWS)](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-how-it-works.html)
+- [RAG from scratch (YouTube)](https://www.youtube.com/watch?v=wd7TZ4w1mSw&list=PLfaIDFEXuae2LXbO1_PKyVJiQ23ZztA0x)
+- [Slack App API](https://api.slack.com/apps)
+- [Introducing Slacktron](https://merlinbecker.de/introducing-slacktron-building-a-low-budget-always-on-slackbot-template-with-azure-functions-and-edbc7359bd4d)
+- [Slacktron Template Repository](https://github.com/merlinbecker/slacktron)
+- [OpenAI Embedding Endpoint](https://platform.openai.com/docs/guides/embeddings)
+- [OpenAI Completion Endpoint](https://platform.openai.com/docs/guides/text-generation/chat-completions-api)
+- [LangChain Documentation](https://js.langchain.com/v0.2/docs/introduction/)
+- [LangChain GitHub Repository](https://github.com/langchain-ai/langchainjs)
+- [LangFuse](https://langfuse.com/)
+- [LangFuse GitHub Repository](https://github.com/langfuse/langfuse)
+- [Gist for Qdrant](https://gist.github.com/merlinbecker/601edc014424572ae4a05ead3df24381)
+- [Integrating LangFuse](https://gist.github.com/merlinbecker/40a8310c05c679da39650cc1edc1cc81)
